@@ -52,7 +52,7 @@ $(document).on("click", ".wrestler-btn", function() {
   $(this).addClass("active");
 
   var type = $(this).attr("data-type");
-  var queryURL = "http://api.giphy.com/v1/gifs/search?q=" + type + "&api_key=D2gtsqwcjJka3b01W31xPwv2iZUzCRZq&limit=10";
+  var queryURL = "https://api.giphy.com/v1/gifs/search?q=" + type + "&api_key=D2gtsqwcjJka3b01W31xPwv2iZUzCRZq&limit=10";
 
   $.ajax({
     url: queryURL,
