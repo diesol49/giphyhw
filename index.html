@@ -1,84 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Giphy Buttons</title>
-    <link rel="stylesheet" href="/assets/css/style.css">
+  <meta charset="UTF-8">
+  <title>WWE Giphy!</title>
+  <link rel="stylesheet" type="text/css" href="assets/css/style.css">
 </head>
+
 <body>
-    <div class="container">
-        <div id="buttons"></div>
-        <!-- add the buttons -->
-        <form id="form">
-            <label for="user-input"> Search Wrestler!!</label>
-            <input type="text" id="empty-field"><br>
 
-            <input id="add-gif" type="submit" value="Submit!">
-        </form>
-        <div id="gifs-appear-here"></div>
-    </div>
-    
+  <div id="wwe-buttons">
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script type="text/javascript">
+  </div>
+<div id="main">Create your own buttons by entering your favorite wrestlers & click to play/stop gifs!</div>
+  <form id="wwe-form">
+    <input type="text" id="wwe-input" placeholder="Enter a wrestler.."><br>
+    <input id="add-wwe" type="submit" value="SMACK THIS!">
+  </form>
 
-    
-    var wrestler = $().attr("user-input");
-        
-    // URL for Giphy API
-    var queryURL = "https://api.giphy.com/v1/gifs/search?q=" +
-    wrestler + "&api_key=D2gtsqwcjJka3b01W31xPwv2iZUzCRZq&q=WWE&limit=15&offset=0&rating=PG&lang=en";
+  <div id="wrestlers">
 
-    $.ajax({
-        url: queryURL,
-        method: "GET"
-    }).then(function(response) {
-        console.log(queryURL);
-        console.log(response);
+  </div>
 
-        var results = response.data;
-        for(var i = 0; i < results.length; i++) {
-            var wrestlerDiv = $("<div>");
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script type="text/javascript">
+  
+  
+$(document).ready(function() {
 
-            var p = $("<p>").text("Rating: " + results[i].rating);
-            var wrestlerImage = $("<img>");
-            wrestlerImage.attr("src", results[i].images.fixed_height.url);
+var wrestlers = [
+ "Stone Cold", "The Rock", "Mankind", "Ric Flair", "Undertaker", "Kane"
+];
 
-            wrestlerDiv.append(p);
-            wrestlerDiv.append(wrestlerImage);
+// function to make buttons and add to page
+function populateButtons(arrayToUse, classToAdd, areaToAddTo) {
+  $(areaToAddTo).empty();
 
-            $("#gifs-appear-here").prepend(wrestlerDiv);
-        }
+  for (var i = 0; i < arrayToUse.length; i++) {
+    var a = $("<button>");
+    a.addClass(classToAdd);
+    a.attr("data-type", arrayToUse[i]);
+    a.text(arrayToUse[i]);
+    $(areaToAddTo).append(a);
+  }
 
+}
+
+$(document).on("click", ".wrestler-btn", function() {
+  $("#wrestlers").empty();
+  $(".wrestler-btn").removeClass("active");
+  $(this).addClass("active");
+
+  var type = $(this).attr("data-type");
+  var queryURL = "http://api.giphy.com/v1/gifs/search?q=" + type + "&api_key=D2gtsqwcjJka3b01W31xPwv2iZUzCRZq&limit=10";
+
+  $.ajax({
+    url: queryURL,
+    method: "GET"
+  })
+    .then(function(response) {
+      var results = response.data;
+
+      for (var i = 0; i < results.length; i++) {
+        var wweDiv = $("<div class=\"wrestler-item\">");
+
+        var rating = results[i].rating;
+
+        var p = $("<p>").text("Rating: " + rating);
+
+        var animated = results[i].images.fixed_height.url;
+        var still = results[i].images.fixed_height_still.url;
+
+        var wweImg = $("<img>");
+        wweImg.attr("src", still);
+        wweImg.attr("data-still", still);
+        wweImg.attr("data-animate", animated);
+        wweImg.attr("data-state", "still");
+        wweImg.addClass("wrestler-image");
+
+        wweDiv.append(p);
+        wweDiv.append(wweImg);
+
+        $("#wrestlers").append(wweDiv);
+      }
     });
-    //This is where the buttons render
-    function renderButtons() {
-        // to prevent having repeated buttons
-        $("#buttons").empty();
-        for (var i = 0; i < results.length; i++){
-            $("#buttons").append("<button>" + gif[i] + "</button>");
-        }
-        // create the gifs that are loaded
-        var gif = $("<button>");
+});
 
-        gif.addClass("WWE");
-        gif.attr("data-name", results[i]);
-        gif.text(wrestler);
+$(document).on("click", ".wrestler-image", function() {
 
-        $("#buttons").append(gif);
-    }
+  var state = $(this).attr("data-state");
 
-    // function to track butotn click
-    $("#add-gif").on("click", function(event) {
-        event.preventDefault();
-        var gifs = $("user-input").val();
-        $("#buttons").append("<button>" + wrestler + "</button>");
-        return false;
-        renderButtons();
-    });
-    
-    </script>
+  if (state === "still") {
+    $(this).attr("src", $(this).attr("data-animate"));
+    $(this).attr("data-state", "animate");
+  }
+  else {
+    $(this).attr("src", $(this).attr("data-still"));
+    $(this).attr("data-state", "still");
+  }
+});
+
+$("#add-wwe").on("click", function(event) {
+  event.preventDefault();
+  var newWrestler = $("input").eq(0).val();
+
+  if (newWrestler.length > 2) {
+    wrestlers.push(newWrestler);
+  }
+
+  populateButtons(wrestlers, "wrestler-btn", "#wwe-buttons");
+
+});
+
+populateButtons(wrestlers, "wrestler-btn", "#wwe-buttons");
+});
+
+  
+  </script>
+  
 </body>
 </html>
